@@ -1,82 +1,117 @@
 const { Pool } = require("pg");
 require("dotenv").config({ quiet: true });
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+let pool = null;
 
-pool.on("error", (error) => {
-  console.error("Koneksi database bermasalah:", error);
-});
+function getPool() {
+  if (pool) {
+    return pool;
+  }
+
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    const error = new Error(
+      "DATABASE_URL belum diset. Set environment variable DATABASE_URL di Vercel / .env untuk lokal."
+    );
+    error.code = "MISSING_DATABASE_URL";
+    throw error;
+  }
+
+  pool = new Pool({ connectionString });
+  pool.on("error", (error) => {
+    console.error("Koneksi database bermasalah:", error);
+  });
+
+  return pool;
+}
 
 function toNullable(value) {
   return value ? value : null;
 }
 
 async function ensureRecommendationSchema() {
-  await pool.query(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1
-        FROM pg_type
-        WHERE typname = 'price_category'
-      ) THEN
-        CREATE TYPE price_category AS ENUM ('murah', 'standard', 'mahal');
-      END IF;
-    END $$;
-  `);
+  const schemaLockId = 284902149; // arbitrary stable lock id for this project
+  const client = await getPool().connect();
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS rekomendasi (
-      id SERIAL PRIMARY KEY,
-      nama_tempat VARCHAR(255) NOT NULL,
-      nama_menu VARCHAR(255),
-      price DECIMAL(10, 2),
-      deskripsi TEXT,
-      kategori price_category,
-      google_maps_link TEXT,
-      foto_url TEXT,
-      created_by VARCHAR(100),
-      likes INTEGER DEFAULT 0,
-      tanggal_input TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+  try {
+    await client.query("SELECT pg_advisory_lock($1)", [schemaLockId]);
 
-  await pool.query(`
-    ALTER TABLE rekomendasi
-    ADD COLUMN IF NOT EXISTS nama_menu VARCHAR(255),
-    ADD COLUMN IF NOT EXISTS price DECIMAL(10, 2),
-    ADD COLUMN IF NOT EXISTS deskripsi TEXT,
-    ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
-    ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
-  `);
+    try {
+      await client.query("BEGIN");
 
-  const kategoriColumn = await pool.query(`
-    SELECT data_type, udt_name
-    FROM information_schema.columns
-    WHERE table_schema = 'public'
-      AND table_name = 'rekomendasi'
-      AND column_name = 'kategori';
-  `);
+      await client.query(`
+        DO $$
+        BEGIN
+          CREATE TYPE price_category AS ENUM ('murah', 'standard', 'mahal');
+        EXCEPTION
+          WHEN duplicate_object THEN NULL;
+        END $$;
+      `);
 
-  if (kategoriColumn.rowCount > 0 && kategoriColumn.rows[0].udt_name !== "price_category") {
-    await pool.query(`
-      ALTER TABLE rekomendasi
-      ALTER COLUMN kategori TYPE price_category
-      USING (
-        CASE
-          WHEN kategori::text IN ('murah', 'standard', 'mahal')
-            THEN kategori::text::price_category
-          ELSE NULL
-        END
-      );
-    `);
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS rekomendasi (
+          id SERIAL PRIMARY KEY,
+          nama_tempat VARCHAR(255) NOT NULL,
+          nama_menu VARCHAR(255),
+          price DECIMAL(10, 2),
+          deskripsi TEXT,
+          kategori price_category,
+          google_maps_link TEXT,
+          foto_url TEXT,
+          created_by VARCHAR(100),
+          likes INTEGER DEFAULT 0,
+          tanggal_input TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      await client.query(`
+        ALTER TABLE rekomendasi
+        ADD COLUMN IF NOT EXISTS nama_menu VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS price DECIMAL(10, 2),
+        ADD COLUMN IF NOT EXISTS deskripsi TEXT,
+        ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
+      `);
+
+      const kategoriColumn = await client.query(`
+        SELECT udt_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'rekomendasi'
+          AND column_name = 'kategori';
+      `);
+
+      if (
+        kategoriColumn.rowCount > 0 &&
+        kategoriColumn.rows[0].udt_name !== "price_category"
+      ) {
+        await client.query(`
+          ALTER TABLE rekomendasi
+          ALTER COLUMN kategori TYPE price_category
+          USING (
+            CASE
+              WHEN kategori::text IN ('murah', 'standard', 'mahal')
+                THEN kategori::text::price_category
+              ELSE NULL
+            END
+          );
+        `);
+      }
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      await client.query("SELECT pg_advisory_unlock($1)", [schemaLockId]);
+    }
+  } finally {
+    client.release();
   }
 }
 
 async function getRecommendations() {
-  const result = await pool.query(`
+  const result = await getPool().query(`
     SELECT
       id,
       nama_tempat,
@@ -108,7 +143,7 @@ async function createRecommendation(data) {
     toNullable(data.created_by),
   ];
 
-  const result = await pool.query(
+  const result = await getPool().query(
     `
       INSERT INTO rekomendasi (
         nama_tempat,
@@ -140,7 +175,7 @@ async function createRecommendation(data) {
 }
 
 async function updateLikes(id) {
-  const result = await pool.query(
+  const result = await getPool().query(
     `UPDATE rekomendasi SET likes = COALESCE(likes, 0) + 1 WHERE id = $1 RETURNING likes;`,
     [id]
   );

@@ -17,17 +17,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              brand: '#F8DE22',
+      // Prevent stale service workers from breaking CDN fetches under CSP.
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(async (registrations) => {
+            if (!registrations.length) return;
+            if (sessionStorage.getItem("sw-cleared") === "1") return;
+
+            sessionStorage.setItem("sw-cleared", "1");
+            await Promise.all(registrations.map((reg) => reg.unregister()));
+
+            if (navigator.serviceWorker.controller) {
+              location.reload();
             }
-          }
-        }
+          })
+          .catch(() => {});
+      }
+    </script>
+
+    <script>
+      if (window.tailwind) {
+        tailwind.config = {
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ["Inter", "sans-serif"],
+              },
+              colors: {
+                brand: "#F8DE22",
+              },
+            },
+          },
+        };
       }
     </script>
 
