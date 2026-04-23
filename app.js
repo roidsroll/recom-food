@@ -112,6 +112,10 @@ function validateFormData(formData) {
     return "Kategori wajib dipilih: murah, standard, atau mahal.";
   }
 
+  if (!formData.google_maps_link) {
+    return "Link Google Maps wajib diisi.";
+  }
+
   if (formData.price) {
     const numericPrice = Number(formData.price);
     if (!Number.isFinite(numericPrice) || numericPrice < 0) {

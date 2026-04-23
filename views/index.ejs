@@ -17,6 +17,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              brand: '#FFC81E',
+            }
+          }
+        }
+      }
+    </script>
+
+    <script>
       // Prevent stale service workers from breaking CDN fetches under CSP.
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker
@@ -66,14 +81,14 @@
       }
     </style>
   </head>
-  <body class="bg-white text-black font-['Inter',sans-serif] antialiased selection:bg-[#FFC81E] selection:text-black">
+  <body class="bg-white text-black font-sans antialiased selection:bg-brand selection:text-black">
     
     <!-- Navigation -->
     <nav class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-black/5">
       <div class="max-w-6xl mx-auto px-6">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-[#FFC81E] rounded-lg flex items-center justify-center text-black shadow-sm shadow-[#FFC81E]/20">
+            <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-black shadow-sm shadow-brand/20">
               <i class="fa-solid fa-utensils text-sm"></i>
             </div>
             <span class="text-sm font-bold tracking-tight uppercase">Recom Place</span>
@@ -83,7 +98,7 @@
             data-open-form
             class="h-10 px-6 bg-black text-white text-[11px] font-bold rounded-full hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-black/5"
           >
-            <i class="fa-solid fa-plus text-[#FFC81E]"></i>
+            <i class="fa-solid fa-plus text-brand"></i>
             Add Recomendation
           </button>
         </div>
@@ -104,11 +119,11 @@
       <!-- Hero -->
       <div class="mb-16">
         <div class="flex items-center gap-2 mb-4">
-           <span class="px-2 py-0.5 bg-[#FFC81E]/10 text-black text-[9px] font-bold uppercase tracking-widest rounded">Community Curated</span>
+           <span class="px-2 py-0.5 bg-brand/10 text-black text-[9px] font-bold uppercase tracking-widest rounded">Community Curated</span>
         </div>
         <h2 class="text-4xl lg:text-5xl font-extrabold text-black tracking-tight leading-tight mb-4">
-          Cari tempat Nongki? Makan? atau apapun itu  yang <span class="text-[#FFC81E]">pas</span><br/> di kantong & selera. <br>
-          <span class="text-[#FFC81E]">Bagikan juga tempat langganan mu !!!</span><br/>
+          Cari tempat Nongki? Makan? atau apapun itu  yang <span class="text-brand">pas</span><br/> di kantong & selera. <br>
+          <span class="text-brand">Bagikan juga tempat langganan mu !!!</span><br/>
         </h2>
        
       </div>
@@ -142,7 +157,7 @@
       <% } else { %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
           <% recommendations.forEach((item, index) => { %>
-            <article class="group flex flex-col animate-fade opacity-0 border border-black/10 rounded-[2.5rem] p-5 bg-white hover:border-black/20 transition-colors" style="animation-delay: <%= 0.05 * (index % 6) %>s">
+            <article class="group flex flex-col animate-fade opacity-0 border border-brand rounded-[2.5rem] p-5 bg-white hover:shadow-xl hover:shadow-brand/5 transition-all duration-500" style="animation-delay: <%= 0.05 * (index % 6) %>s">
               <!-- Thumbnail -->
               <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-6 bg-black/[0.02] border border-black/5">
                 <% if (item.has_image) { %>
@@ -153,13 +168,13 @@
                     loading="lazy"
                   />
                 <% } else { %>
-                  <div class="w-full h-full flex flex-col items-center justify-center text-black/5 group-hover:text-[#FFC81E]/20 transition-colors duration-500">
+                  <div class="w-full h-full flex flex-col items-center justify-center text-black/5 group-hover:text-brand/20 transition-colors duration-500">
                     <i class="fa-solid fa-utensils text-5xl"></i>
                   </div>
                 <% } %>
                 
                 <div class="absolute top-5 left-5">
-                  <span class="px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest text-black bg-[#FFC81E] shadow-sm">
+                  <span class="px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest text-black bg-brand shadow-sm">
                     <%= item.kategori %>
                   </span>
                 </div>
@@ -168,7 +183,7 @@
               <!-- Info Section -->
               <div class="flex flex-col flex-grow px-1">
                 <div class="flex justify-between items-start gap-4 mb-3">
-                  <h3 class="text-xl font-bold text-black leading-tight group-hover:text-[#FFC81E] transition-colors duration-300">
+                  <h3 class="text-xl font-bold text-black leading-tight group-hover:text-brand transition-colors duration-300">
                     <%= item.nama_tempat %>
                   </h3>
                   <% if (item.formatted_price) { %>
@@ -180,7 +195,7 @@
 
                 <% if (item.nama_menu) { %>
                   <p class="text-[14px] font-semibold text-black/50 mb-3 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-[#FFC81E] rounded-full"></span>
+                    <span class="w-1.5 h-1.5 bg-brand rounded-full"></span>
                     <%= item.nama_menu %>
                   </p>
                 <% } %>
@@ -207,7 +222,7 @@
                 <div class="mt-auto space-y-4">
                   <% if (item.google_maps_link) { %>
                     <a href="<%= item.google_maps_link %>" target="_blank" rel="noreferrer" 
-                       class="flex items-center justify-center gap-2 w-full py-3.5 bg-[#FFC81E] text-black rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-black hover:text-[#FFC81E] transition-all duration-300 shadow-sm shadow-[#FFC81E]/10 active:scale-[0.98]">
+                       class="flex items-center justify-center gap-2 w-full py-3.5 bg-brand text-black rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-black hover:text-brand transition-all duration-300 shadow-sm shadow-brand/10 active:scale-[0.98]">
                       <i class="fa-solid fa-location-dot"></i>
                       <span>Lihat Lokasi</span>
                     </a>
@@ -372,7 +387,7 @@
                 </div>
               </div>
 
-              <button type="submit"
+              <button type="submit" data-submit-btn
                       class="w-full py-5 bg-black text-white font-bold rounded-2xl hover:bg-brand hover:text-black transition-all text-[12px] uppercase tracking-[0.3em] shadow-xl shadow-black/10 active:scale-[0.98]">
                 SIMPAN REKOMENDASI
               </button>
@@ -389,7 +404,7 @@
       const form = modal.querySelector("form");
       const submitBtn = modal.querySelector("[data-submit-btn]");
       const priceDisplay = document.getElementById("price_display");
-      const priceHidden = document.getElementById("price");
+      const priceHidden = document.getElementById("price_hidden");
 
       function openForm() {
         modal.classList.remove("hidden");
@@ -406,41 +421,11 @@
 
       // Auto-expand textarea
       const textarea = document.getElementById('deskripsi');
-      textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-      });
-
-      // Rupiah Formatter
-      const priceDisplay = document.getElementById('price_display');
-      const priceHidden = document.getElementById('price_hidden');
-
-      function formatRupiah(angka, prefix) {
-        var number_string = angka.replace(/[^,\d]/g, '').toString(),
-          split = number_string.split(','),
-          sisa = split[0].length % 3,
-          rupiah = split[0].substr(0, sisa),
-          ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-        if (ribuan) {
-          var separator = sisa ? '.' : '';
-          rupiah += separator + ribuan.join('.');
-        }
-
-        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-        return prefix == undefined ? rupiah : (rupiah ? rupiah : '');
-      }
-
-      priceDisplay.addEventListener('keyup', function(e) {
-        // Update display with formatting
-        this.value = formatRupiah(this.value);
-        // Update hidden input with numeric value only
-        priceHidden.value = this.value.replace(/\./g, '');
-      });
-
-      // Format initial value if exists
-      if (priceDisplay.value) {
-        priceDisplay.value = formatRupiah(priceDisplay.value);
+      if (textarea) {
+        textarea.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight) + 'px';
+        });
       }
 
       document.addEventListener("keydown", (e) => {
@@ -459,11 +444,13 @@
       }
 
       function setFormattedPrice(nextDigits) {
+        if (!priceHidden || !priceDisplay) return;
         priceHidden.value = nextDigits;
         priceDisplay.value = formatRupiahNumber(nextDigits);
       }
 
       function formatPriceWithCaret() {
+        if (!priceDisplay || !priceHidden) return;
         const rawValue = priceDisplay.value;
         const selectionStart = priceDisplay.selectionStart ?? rawValue.length;
         const digitsLeftOfCaret = (rawValue.slice(0, selectionStart).match(/\d/g) || []).length;
