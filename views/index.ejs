@@ -65,17 +65,18 @@
             </div>
             <span class="text-sm font-bold tracking-tight uppercase">Recom Place</span>
           </div>
-          
-          <button 
-            data-open-form
-            class="h-10 px-6 bg-black text-white text-[11px] font-bold rounded-full hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-black/5"
-          >
-            <i class="fa-solid fa-plus text-brand"></i>
-            Add Recomendation
-          </button>
         </div>
       </div>
     </nav>
+
+    <!-- Floating Action Button (FAB) -->
+    <button 
+      data-open-form
+      class="fixed bottom-8 right-8 z-[90] w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-brand hover:text-black hover:scale-110 active:scale-95 transition-all duration-300 group"
+      aria-label="Add Recommendation"
+    >
+      <i class="fa-solid fa-plus text-xl transition-transform group-hover:rotate-90"></i>
+    </button>
 
     <main class="max-w-6xl mx-auto px-6 py-12 lg:py-20">
       
@@ -85,7 +86,8 @@
            <span class="px-2 py-0.5 bg-brand/10 text-black text-[9px] font-bold uppercase tracking-widest rounded">Community Curated</span>
         </div>
         <h2 class="text-4xl lg:text-5xl font-extrabold text-black tracking-tight leading-tight mb-4">
-          Cari tempat Nongki? Makan? atau apapun itu  yang <span class="text-brand">pas</span><br/>di kantong & selera.
+          Cari tempat Nongki? Makan? atau apapun itu  yang <span class="text-brand">pas</span><br/>di kantong & selera. 
+          Web
         </h2>
        
       </div>
@@ -94,12 +96,12 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
         <div class="flex items-center gap-1 p-1 bg-black/[0.03] rounded-xl border border-black/5 overflow-x-auto max-w-full scrollbar-hide">
           <a href="/?category=semua" 
-             class="whitespace-nowrap px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all <%= activeCategory === 'semua' ? 'bg-white text-black shadow-sm' : 'text-black/40 hover:text-black' %>">
+             class="whitespace-nowrap px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all <%= activeCategory === 'semua' ? 'bg-brand text-black shadow-sm' : 'text-black/40 hover:text-black' %>">
             Semua
           </a>
           <% ['murah', 'standard', 'mahal'].forEach(cat => { %>
             <a href="/?category=<%= cat %>" 
-               class="whitespace-nowrap px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all capitalize <%= activeCategory === cat ? 'bg-white text-black shadow-sm' : 'text-black/40 hover:text-black' %>">
+               class="whitespace-nowrap px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all capitalize <%= activeCategory === cat ? 'bg-brand text-black shadow-sm' : 'text-black/40 hover:text-black' %>">
               <%= cat %>
             </a>
           <% }) %>
@@ -119,9 +121,9 @@
       <% } else { %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
           <% recommendations.forEach((item, index) => { %>
-            <article class="group flex flex-col animate-fade opacity-0" style="animation-delay: <%= 0.05 * (index % 6) %>s">
+            <article class="group flex flex-col animate-fade opacity-0 border border-black/[0.06] rounded-[2.5rem] p-5 hover:border-brand/50 hover:shadow-xl hover:shadow-black/[0.02] transition-all duration-500 bg-white" style="animation-delay: <%= 0.05 * (index % 6) %>s">
               <!-- Thumbnail -->
-              <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-5 bg-black/[0.02] border border-black/5">
+              <div class="relative aspect-[4/3] overflow-hidden rounded-3xl mb-6 bg-black/[0.02] border border-black/5">
                 <% if (item.has_image) { %>
                   <img 
                     src="<%= item.foto_url %>" 
@@ -220,70 +222,137 @@
 
     <!-- Modal Form -->
     <div id="form-modal" class="<%= shouldOpenForm ? '' : 'hidden' %> fixed inset-0 z-[100] overflow-y-auto" role="dialog" aria-modal="true">
-      <div class="flex items-center justify-center min-h-screen p-6">
+      <div class="flex items-center justify-center min-h-screen p-4 sm:p-6">
         <div data-close-form class="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"></div>
 
-        <div class="relative bg-white rounded-[2.5rem] overflow-hidden max-w-lg w-full shadow-2xl animate-fade">
-          <div class="p-8 lg:p-12">
-            <div class="flex justify-between items-center mb-10">
+        <div class="relative bg-white rounded-[2rem] sm:rounded-[3rem] overflow-hidden max-w-2xl w-full shadow-2xl animate-fade">
+          <div class="p-6 sm:p-10 lg:p-12">
+            <div class="flex justify-between items-start mb-8">
               <div>
-                <h3 class="text-xl font-bold text-black tracking-tight">Tambah Data</h3>
-                <p class="text-[11px] font-medium text-black/40 uppercase tracking-widest mt-1">New Recommendation</p>
+                <h3 class="text-2xl font-black text-black tracking-tight">Tambah Rekomendasi</h3>
+                <p class="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em] mt-1">Bagikan tempat favoritmu</p>
               </div>
-              <button data-close-form class="w-10 h-10 rounded-full bg-black/5 text-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-all">
+              <button data-close-form class="w-10 h-10 rounded-full bg-black/5 text-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-all active:scale-90">
                 <i class="fa-solid fa-xmark text-sm"></i>
               </button>
             </div>
 
-            <form action="/rekomendasi" method="POST" class="space-y-6">
-              <div>
-                <label for="nama_tempat" class="block text-[10px] font-bold text-black/30 mb-2 uppercase tracking-widest">Nama Tempat *</label>
-                <input type="text" id="nama_tempat" name="nama_tempat" required value="<%= formData.nama_tempat %>"
-                       class="w-full px-0 py-3 bg-transparent border-b border-black/10 focus:border-brand outline-none transition-all text-sm font-bold placeholder:text-black/10"
-                       placeholder="Misal: Bubur Ayam Special" />
-              </div>
+            <form action="/rekomendasi" method="POST" class="space-y-8">
+              <!-- Section: Basic Info -->
+              <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="space-y-2">
+                    <label for="nama_tempat" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Nama Tempat *</label>
+                    <div class="relative group">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-store text-[10px] text-black/20 group-focus-within:text-brand transition-colors"></i>
+                      </div>
+                      <input type="text" id="nama_tempat" name="nama_tempat" required value="<%= formData.nama_tempat %>"
+                             class="w-full pl-10 pr-4 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all text-sm font-bold placeholder:text-black/20"
+                             placeholder="Misal: Bubur Ayam Berkah" />
+                    </div>
+                  </div>
 
-              <div class="grid grid-cols-2 gap-8">
-                <div>
-                  <label for="nama_menu" class="block text-[10px] font-bold text-black/30 mb-2 uppercase tracking-widest">Menu</label>
-                  <input type="text" id="nama_menu" name="nama_menu" value="<%= formData.nama_menu %>"
-                         class="w-full px-0 py-3 bg-transparent border-b border-black/10 focus:border-brand outline-none transition-all text-sm font-bold" />
+                  <div class="space-y-2">
+                    <label for="created_by" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Nama Kamu</label>
+                    <div class="relative group">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-user text-[10px] text-black/20 group-focus-within:text-brand transition-colors"></i>
+                      </div>
+                      <input type="text" id="created_by" name="created_by" value="<%= formData.created_by %>"
+                             class="w-full pl-10 pr-4 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all text-sm font-bold placeholder:text-black/20"
+                             placeholder="Nama pemberi rekomendasi" />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label for="price" class="block text-[10px] font-bold text-black/30 mb-2 uppercase tracking-widest">Harga</label>
-                  <input type="number" id="price" name="price" value="<%= formData.price %>"
-                         class="w-full px-0 py-3 bg-transparent border-b border-black/10 focus:border-brand outline-none transition-all text-sm font-bold" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="space-y-2">
+                    <label for="nama_menu" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Menu Rekomendasi</label>
+                    <div class="relative group">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-utensils text-[10px] text-black/20 group-focus-within:text-brand transition-colors"></i>
+                      </div>
+                      <input type="text" id="nama_menu" name="nama_menu" value="<%= formData.nama_menu %>"
+                             class="w-full pl-10 pr-4 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all text-sm font-bold placeholder:text-black/20"
+                             placeholder="Menu yang paling enak?" />
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label for="price" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Harga Menu</label>
+                    <div class="relative group">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-sm font-bold text-black/20 group-focus-within:text-brand transition-colors">
+                        Rp
+                      </div>
+                      <input type="text" id="price_display" name="price_display" value="<%= formData.price %>"
+                             class="w-full pl-10 pr-4 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all text-sm font-bold placeholder:text-black/20"
+                             placeholder="0" />
+                      <input type="hidden" name="price" id="price_hidden" value="<%= formData.price %>">
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label for="kategori" class="block text-[10px] font-bold text-black/30 mb-2 uppercase tracking-widest">Kategori Harga *</label>
-                <select id="kategori" name="kategori" required
-                        class="w-full px-0 py-3 bg-transparent border-b border-black/10 focus:border-brand outline-none transition-all text-sm font-bold appearance-none cursor-pointer">
-                  <option value="">Pilih...</option>
-                  <% priceCategories.forEach(cat => { %>
-                    <option value="<%= cat %>" <%= formData.kategori === cat ? "selected" : "" %>><%= cat.toUpperCase() %></option>
-                  <% }) %>
-                </select>
+              <!-- Section: Category & Description -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="space-y-2">
+                  <label for="kategori" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Range Harga *</label>
+                  <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <i class="fa-solid fa-tags text-[10px] text-black/20 group-focus-within:text-brand transition-colors"></i>
+                    </div>
+                    <select id="kategori" name="kategori" required
+                            class="w-full pl-10 pr-10 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all text-sm font-bold appearance-none cursor-pointer">
+                      <option value="" disabled selected>Pilih...</option>
+                      <% priceCategories.forEach(cat => { %>
+                        <option value="<%= cat %>" <%= formData.kategori === cat ? "selected" : "" %>><%= cat.toUpperCase() %></option>
+                      <% }) %>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <i class="fa-solid fa-chevron-down text-[10px] text-black/20"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="md:col-span-2 space-y-2">
+                  <label for="deskripsi" class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Review Singkat</label>
+                  <div class="relative group">
+                    <div class="absolute top-4 left-0 pl-4 pointer-events-none">
+                      <i class="fa-solid fa-comment-dots text-[10px] text-black/20 group-focus-within:text-brand transition-colors"></i>
+                    </div>
+                    <textarea id="deskripsi" name="deskripsi" rows="1"
+                              class="w-full pl-10 pr-4 py-4 bg-black/[0.03] border border-transparent focus:border-brand/30 focus:bg-white focus:ring-4 focus:ring-brand/5 rounded-2xl outline-none transition-all resize-none text-sm font-bold placeholder:text-black/20"
+                              placeholder="Kenapa tempat ini recommended?"><%= formData.deskripsi %></textarea>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label for="deskripsi" class="block text-[10px] font-bold text-black/30 mb-2 uppercase tracking-widest">Deskripsi</label>
-                <textarea id="deskripsi" name="deskripsi" rows="2"
-                          class="w-full px-0 py-2 bg-transparent border-b border-black/10 focus:border-brand outline-none transition-all resize-none text-sm font-bold"><%= formData.deskripsi %></textarea>
-              </div>
-
-              <div class="space-y-4 pt-4">
-                <input type="url" id="google_maps_link" name="google_maps_link" value="<%= formData.google_maps_link %>"
-                       class="w-full px-5 py-4 rounded-2xl bg-black/[0.02] border border-black/5 focus:border-brand outline-none transition-all text-[11px] font-bold"
-                       placeholder="LINK GOOGLE MAPS" />
-                <input type="url" id="foto_url" name="foto_url" value="<%= formData.foto_url %>"
-                       class="w-full px-5 py-4 rounded-2xl bg-black/[0.02] border border-black/5 focus:border-brand outline-none transition-all text-[11px] font-bold"
-                       placeholder="LINK FOTO (URL)" />
+              <!-- Section: Links -->
+              <div class="space-y-4 p-5 bg-brand/[0.03] rounded-[2rem] border border-brand/10">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-map-location-dot text-brand text-[10px]"></i>
+                    <label for="google_maps_link" class="block text-[10px] font-black text-black uppercase tracking-widest">Link Google Maps *</label>
+                  </div>
+                  <input type="url" id="google_maps_link" name="google_maps_link" required value="<%= formData.google_maps_link %>"
+                         class="w-full px-5 py-4 rounded-2xl bg-white border border-black/5 focus:border-brand/30 outline-none transition-all text-[11px] font-bold shadow-sm"
+                         placeholder="https://maps.google.com/..." />
+                </div>
+                
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-image text-brand text-[10px]"></i>
+                    <label for="foto_url" class="block text-[10px] font-black text-black uppercase tracking-widest">Link Foto Unit (URL)</label>
+                  </div>
+                  <input type="url" id="foto_url" name="foto_url" value="<%= formData.foto_url %>"
+                         class="w-full px-5 py-4 rounded-2xl bg-white border border-black/5 focus:border-brand/30 outline-none transition-all text-[11px] font-bold shadow-sm"
+                         placeholder="https://images.unsplash.com/..." />
+                </div>
               </div>
 
               <button type="submit"
-                      class="w-full py-5 bg-black text-white font-bold rounded-[2rem] hover:bg-slate-800 transition-all text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-black/10 active:scale-[0.98]">
+                      class="w-full py-5 bg-black text-white font-bold rounded-2xl hover:bg-brand hover:text-black transition-all text-[12px] uppercase tracking-[0.3em] shadow-xl shadow-black/10 active:scale-[0.98]">
                 SIMPAN REKOMENDASI
               </button>
             </form>
@@ -309,6 +378,45 @@
 
       openButtons.forEach(btn => btn.addEventListener("click", openForm));
       closeButtons.forEach(btn => btn.addEventListener("click", closeForm));
+
+      // Auto-expand textarea
+      const textarea = document.getElementById('deskripsi');
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+
+      // Rupiah Formatter
+      const priceDisplay = document.getElementById('price_display');
+      const priceHidden = document.getElementById('price_hidden');
+
+      function formatRupiah(angka, prefix) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+          split = number_string.split(','),
+          sisa = split[0].length % 3,
+          rupiah = split[0].substr(0, sisa),
+          ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+          var separator = sisa ? '.' : '';
+          rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? rupiah : '');
+      }
+
+      priceDisplay.addEventListener('keyup', function(e) {
+        // Update display with formatting
+        this.value = formatRupiah(this.value);
+        // Update hidden input with numeric value only
+        priceHidden.value = this.value.replace(/\./g, '');
+      });
+
+      // Format initial value if exists
+      if (priceDisplay.value) {
+        priceDisplay.value = formatRupiah(priceDisplay.value);
+      }
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && !modal.classList.contains("hidden")) closeForm();
