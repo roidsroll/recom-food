@@ -1,7 +1,30 @@
-const { app, ensureSchemaReady } = require("./app");
+const path = require("path");
+const express = require("express");
+require("dotenv").config({ quiet: true });
 
-const PORT = Number(process.env.PORT) || 3000;
-<<<<<<< HEAD
+const {
+  ensureRecommendationSchema,
+  getRecommendations,
+  createRecommendation,
+  updateLikes,
+} = require("./DB.JS");
+
+const app = express();
+
+// Middleware Content Security Policy (CSP)
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+      "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
+      "img-src 'self' data: blob: *; " +
+      "connect-src 'self' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com;"
+  );
+  next();
+});
+
 const PRICE_CATEGORIES = ["murah", "standard", "mahal"];
 
 app.set("view engine", "ejs");
@@ -9,6 +32,28 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+let schemaReadyPromise = null;
+
+async function ensureSchemaReady() {
+  if (!schemaReadyPromise) {
+    schemaReadyPromise = ensureRecommendationSchema().catch((error) => {
+      schemaReadyPromise = null;
+      throw error;
+    });
+  }
+
+  return schemaReadyPromise;
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await ensureSchemaReady();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 function formatDate(dateValue) {
   return new Intl.DateTimeFormat("id-ID", {
@@ -65,10 +110,6 @@ function validateFormData(formData) {
 
   if (!formData.kategori || !PRICE_CATEGORIES.includes(formData.kategori)) {
     return "Kategori wajib dipilih: murah, standard, atau mahal.";
-  }
-
-  if (!formData.google_maps_link) {
-    return "Link Google Maps wajib diisi.";
   }
 
   if (formData.price) {
@@ -131,9 +172,9 @@ async function renderHome(res, options = {}) {
 app.get("/", async (req, res) => {
   try {
     const category = (req.query.category || "semua").toLowerCase();
-    await renderHome(res, { 
+    await renderHome(res, {
       success: req.query.success === "1",
-      filterCategory: category
+      filterCategory: category,
     });
   } catch (error) {
     console.error("Gagal menampilkan halaman:", error);
@@ -191,19 +232,23 @@ app.post("/rekomendasi", async (req, res) => {
     }
   }
 });
-=======
->>>>>>> 67ab3bb5d90d072aa207017b90f7fb886ca9b97b
 
-async function start() {
-  try {
-    await ensureSchemaReady();
-    app.listen(PORT, () => {
-      console.log(`Server berjalan di http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error("Gagal menyalakan aplikasi:", error);
-    process.exitCode = 1;
+app.use((error, req, res, next) => {
+  console.error("Unhandled error:", error);
+  if (res.headersSent) {
+    next(error);
+    return;
   }
-}
 
-start();
+  const message =
+    error && error.code === "MISSING_DATABASE_URL"
+      ? "Konfigurasi database belum diset (DATABASE_URL)."
+      : "Terjadi kesalahan pada server.";
+
+  res.status(500).send(message);
+});
+
+module.exports = {
+  app,
+  ensureSchemaReady,
+};
